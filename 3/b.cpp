@@ -33,7 +33,7 @@ int main() {
     string cursor;
 
     //std::regex pattern(R"((mul\(\d+,\d+\))+)");
-    std::regex pattern(R"(mul\(\d+,\d+\))"); 
+    std::regex pattern(R"(mul\(\d+,\d+\)|(do\(\))|(don't\(\)))"); 
     //std::regex pattern(R"(mul(\d+,\d+))");
     // regex pattern(R"(mul\((\d+),(\d+)\))");
 
@@ -50,14 +50,6 @@ int main() {
         string input = instruction;
         auto matches_begin = std::sregex_iterator(input.begin(), input.end(), pattern);
         auto matches_end = std::sregex_iterator();
-        //
-        // std::cout << "Matches found:" << std::endl;
-        // for (std::sregex_iterator i = matches_begin; i != matches_end; ++i) {
-        //     std::smatch match = *i;
-        //     string element = match.str();
-        //     std::cout << element << std::endl;
-        //     mulInstructions.push_back(element);
-        // }
 
         auto it = std::sregex_iterator(instruction.begin(), instruction.end(), pattern);
         auto end = std::sregex_iterator();
@@ -71,20 +63,30 @@ int main() {
     }
 
     int sum = 0;
+    bool shouldDo = true;
     for (string instruction : mulInstructions) {
-        instruction.erase(0,4);
-        instruction.erase(instruction.length() - 1);
-        // cout << instruction;
-        cout << instruction << " <-- " << endl;
 
-        vector<string> splitInstruction = split(instruction, ",");
-        int product = 1;
-        for (string numStr : splitInstruction) {
-            product *= stoi(numStr);
-            cout << instruction << " | " << numStr << endl;
-            //cout << numStr;
+        if (instruction == "do()") {
+            shouldDo = true;
         }
-        sum += product;
+        else if (instruction == "don't()") {
+            shouldDo = false;
+        }
+        else if (shouldDo) {
+            instruction.erase(0,4);
+            instruction.erase(instruction.length() - 1);
+            // cout << instruction;
+            cout << instruction << " <-- " << endl;
+
+            vector<string> splitInstruction = split(instruction, ",");
+            int product = 1;
+            for (string numStr : splitInstruction) {
+                product *= stoi(numStr);
+                cout << instruction << " | " << numStr << endl;
+                //cout << numStr;
+            }
+            sum += product;
+        }
     }
     cout << sum;
 
