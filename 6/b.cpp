@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <set>
+#include <tuple>
 
 using namespace std;
 
@@ -25,72 +26,6 @@ std::vector<std::string> split(const std::string& s, const std::string& delimite
     tokens.push_back(temp);
 
     return tokens;
-}
-
-bool hasEnd(int _dy, int _dx, int sx, int sy, vector<vector<char>> map) {
-    int rows = map.size();
-    int cols = map[0].size();
-
-    int x = sx;
-    int y = sy;
-
-    int steps = 1;
-
-    set<string> dirPosBounded;
-    int dx = _dx;
-    int dy = _dy;
-
-    while (true) {
-        int nx = x + dx;
-        int ny = y + dy;
-        
-        if (nx < 0 || nx >= cols || ny < 0 || ny >= rows) {
-            return true;
-            // break;
-        }
-
-        char nc = map[ny][nx];
-        if (nc == '#') {
-            string serializedDirPos = to_string(dx) + ", " + to_string(dy) + "_" + to_string(x) + ", " + to_string(y);
-            if (dirPosBounded.count(serializedDirPos) > 0) {
-                return false;
-            }
-            dirPosBounded.insert(serializedDirPos);
-
-            if (dx == 0 && dy == -1) {
-                dx = 1;
-                dy = 0;
-            } else if (dx == 1 && dy == 0) {
-                dx = 0;
-                dy = 1;
-            } else if (dx == 0 && dy == 1) {
-                dx = -1;
-                dy = 0;
-            } else if (dx == -1 && dy == 0) {
-                dx = 0;
-                dy = -1;
-            }
-        }
-
-        x = x + dx;
-        y = y + dy;
-        
-        steps += 1;
-        // if (steps > threshold) {
-        //     return false;
-        // }
-    }
-}
-
-string delimiter = "   ";
-
-void printMap(vector< vector<char>> map) {
-    for (vector<char> row : map) {
-        for (char c : row) {
-            cout << c;
-        }
-        cout << endl;
-    }
 }
 
 struct Pos {
@@ -113,6 +48,55 @@ Pos rotate90(int dx, int dy) {
         result.y = -1;
     }
     return result;
+}
+
+bool hasEnd(int _dy, int _dx, int sx, int sy, vector<vector<char>> map) {
+    int rows = map.size();
+    int cols = map[0].size();
+
+    int x = sx;
+    int y = sy;
+
+    set<tuple<int, int, int, int>> dirPosBounded;
+    int dx = _dx;
+    int dy = _dy;
+
+    while (true) {
+        int nx = x + dx;
+        int ny = y + dy;
+        
+        if (nx < 0 || nx >= cols || ny < 0 || ny >= rows) {
+            return true;
+            // break;
+        }
+
+        char nc = map[ny][nx];
+        if (nc == '#') {
+            tuple<int, int, int, int> serializedDirPos = make_tuple(dx, dy, x, y);
+            if (dirPosBounded.count(serializedDirPos) > 0) {
+                return false;
+            }
+            dirPosBounded.insert(serializedDirPos);
+
+            Pos next = rotate90(dx, dy);
+            dx = next.x;
+            dy = next.y;
+        }
+
+        x = x + dx;
+        y = y + dy;
+    }
+}
+
+string delimiter = "   ";
+
+void printMap(vector< vector<char>> map) {
+    for (vector<char> row : map) {
+        for (char c : row) {
+            cout << c;
+        }
+        cout << endl;
+    }
 }
 
 int main() {
@@ -142,9 +126,12 @@ int main() {
             }
         }
     }
+    int startX = x;
+    int startY = y;
     cout << x << ", " << y << endl;
 
-    set<string> candidates;
+    // set<string> candidates;
+    set< tuple<int, int>> candidates;
     int steps = 1;
     while (true) {
         int nx = x + dx;
@@ -166,31 +153,25 @@ int main() {
         if (!(x < 0 || x >= cols || y < 0 || y >= rows)) {
             char cur = map[y][x];
             if (cur == '.') {
-                candidates.insert(to_string(x) + "," + to_string(y));
-            }
-        }
-    }
-
-    for (int row = 0; row < rows; row++) {
-        for (int col = 0; col < cols; col++) {
-            if (map[row][col] == '^') {
-                x = col;
-                y = row;
-                break;
+                tuple<int, int> tup = make_tuple(x, y);
+                candidates.insert(tup);
+                // candidates.insert(to_string(x) + "," + to_string(y));
             }
         }
     }
 
     int count = 0;
-    for (string candidate : candidates) {
-        vector<string> s = split(candidate, ",");
-        int sx = stoi(s[0]);
-        int sy = stoi(s[1]);
+    for (tuple<int, int> candidate : candidates) {
+        // vector<string> s = split(candidate, ",");
+        // int sx = stoi(s[0]);
+        // int sy = stoi(s[1]);
+        int sx = get<0>(candidate); 
+        int sy = get<1>(candidate); 
         if (map[sy][sx] != '.') {
             cout << "Invalid!" << endl;
         }
         map[sy][sx] = '#';
-        bool ended = hasEnd(0, -1, x, y, map);
+        bool ended = hasEnd(0, -1, startX, startY, map);
         if (!ended) {
             count += 1;
         }
