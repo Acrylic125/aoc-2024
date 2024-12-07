@@ -69,7 +69,6 @@ int main() {
     string cursor;
 
     vector<Eqn> eqns;
-    cout << "T1 " << endl;
     while (getline(InputFile, cursor)) {
         vector<string> rs = split(cursor, ": ");
         long long result = stol(rs[0]);
@@ -83,7 +82,6 @@ int main() {
         eqn.operands = operands;
         eqns.push_back(eqn);
     }
-    cout << "T2 " << endl;
 
     long long sum = 0;
     for (Eqn eqn : eqns) {
