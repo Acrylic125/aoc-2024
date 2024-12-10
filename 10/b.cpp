@@ -81,35 +81,15 @@ void walkToTail(vector<vector<int>> &map, std::map<tuple<int, int>, int> &tailSc
             tuple<int, int> coords = make_tuple(nx, ny);
 
             if (explored.count(coords) <= 0) {
-                if (numAtCheck - 1 == numAtCheckOffset) {
-                    if (numAtCheckOffset == 0) {
-                        tailScores[coords] += 1;
+                if (numAtCheck + 1 == numAtCheckOffset) {
+                    if (numAtCheckOffset == 9) {
+                        tailScores[start] += 1;
                     } else {
                         toCheck.push_back(coords);
+                    // explored.insert(coords);
                     }
-                    explored.insert(coords);
                 }
             }
-
-
-            // if (numAtCheck == 1) {
-            //     if (explored.count(coords) <= 0) {
-            //         if (numAtCheck - 1 == numAtCheckOffset) {
-            //             toCheck.push_back(coords);
-            //             explored.insert(coords);
-            //         }
-            //     }
-            //     if (numAtCheckOffset == 0) {
-            //         tailScores[coords] += 1;
-            //     }
-            // } else {
-            //     if (explored.count(coords) <= 0) {
-            //         if (numAtCheck - 1 == numAtCheckOffset) {
-            //             toCheck.push_back(coords);
-            //             explored.insert(coords);
-            //         }
-            //     }
-            // }
         }
     }
 }
@@ -139,7 +119,7 @@ int main() {
     for (int x = 0; x < cols; x++) {
         for (int y = 0; y < rows; y++) {
             int c = map[y][x];
-            if (c == 9) {
+            if (c == 0) {
                 tuple<int, int> tpt = make_tuple(x, y);
                 startingPoints.push_back(tpt);
             }
